@@ -9,5 +9,5 @@ npm install gulp-cli -g && npm install
 ## Run project
 
 ```
-In terminal run gulp
+Run the gulp command in your project directory:
 ```
