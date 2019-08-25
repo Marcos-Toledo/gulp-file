@@ -20,7 +20,7 @@ const style = () => {
       "maxLineLen": 80,
       "uglyComments": true
     }))
-    .pipe(dest('./app/dest/assets/stylesheets/'))
+    .pipe(dest('./app/assets/stylesheets/'))
     .pipe(browserSync.stream())
 }
 
