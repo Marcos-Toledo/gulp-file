@@ -1,4 +1,4 @@
-const { src, dest, parallel, watch } = require('gulp'),
+const { src, dest, parallel, series, watch } = require('gulp'),
       sass = require('gulp-sass'),
       rename = require('gulp-rename'),
       uglify = require('gulp-uglify'),
@@ -45,6 +45,4 @@ const server = () => {
   watch('./app/*html').on('change', browserSync.reload);
 }
 
-exports.default = style;
-exports.default = javascript;
-exports.default = parallel(server, style, javascript);
+exports.default = series(style, javascript, server);
