@@ -8,8 +8,29 @@ const { src, dest, parallel, series, watch } = require('gulp'),
       autoprefixer = require('gulp-autoprefixer'),
       browserSync = require('browser-sync').create();
 
+const paths = {
+  html: { watch: './app/*html' },
+  style: {
+    src: './app/src/scss/*.scss',
+    watch: './app/src/scss/**/*.scss',
+    dest: './app/assets/stylesheets/'
+  },
+  javascript: {
+    src: [
+      'node_modules/jquery/dist/jquery.min.js',
+      './app/src/js/**/*.js'
+    ],
+    watch: './app/src/js/**/*.js',
+    dest: './app/assets/javascripts'
+  },
+  images: {
+    src: './app/src/img/*',
+    dest: './app/assets/images'
+  }
+}
+
 const style = () => {
-  return src('./app/src/scss/*.scss')
+  return src(paths.style.src)
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer({
       overrideBrowserslist: ['last 3 versions']
@@ -18,19 +39,16 @@ const style = () => {
       "maxLineLen": 80,
       "uglyComments": true
     }))
-    .pipe(dest('./app/assets/stylesheets/'))
+    .pipe(dest(paths.style.dest))
     .pipe(browserSync.stream())
 }
 
 const javascript = () => {
-  return src([
-    'node_modules/jquery/dist/jquery.min.js',
-    './app/src/js/**/*.js'
-  ])
+  return src(paths.javascript.src)
   .pipe(concat('all.js'))
   .pipe(uglify())
   .pipe(rename({suffix: '.min'}))
-  .pipe(dest('./app/assets/javascripts'))
+  .pipe(dest(paths.javascript.dest))
   .pipe(browserSync.stream())
 }
 
@@ -47,7 +65,7 @@ const images = () => {
         ]
       })
     ]))
-    .pipe(dest('./app/assets/images'))
+    .pipe(dest(paths.images.dest))
 }
 
 const server = () => {
@@ -57,10 +75,10 @@ const server = () => {
     }
   });
 
-  watch('./app/src/scss/**/*.scss', style);
-  watch('./app/src/js/**/*.js', javascript);
-  watch('./app/src/img/*', images);
-  watch('./app/*html').on('change', browserSync.reload);
+  watch(paths.style.watch, style);
+  watch(paths.javascript.watch, javascript);
+  watch(paths.images.src, images);
+  watch(paths.html.watch).on('change', browserSync.reload);
 }
 
 exports.default = series(style, javascript, images, server);
