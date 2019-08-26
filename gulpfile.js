@@ -3,6 +3,7 @@ const { src, dest, parallel, series, watch } = require('gulp'),
       rename = require('gulp-rename'),
       uglify = require('gulp-uglify'),
       concat = require('gulp-concat'),
+      imagemin = require('gulp-imagemin'),
       uglifycss = require('gulp-uglifycss'),
       autoprefixer = require('gulp-autoprefixer'),
       browserSync = require('browser-sync').create();
@@ -33,6 +34,22 @@ const javascript = () => {
   .pipe(browserSync.stream())
 }
 
+const images = () => {
+  return src('./app/src/img/*')
+    .pipe(imagemin([
+      imagemin.gifsicle({interlaced: true}),
+      imagemin.jpegtran({progressive: true}),
+      imagemin.optipng({optimizationLevel: 5}),
+      imagemin.svgo({
+        plugins: [
+          {removeViewBox: true},
+          {cleanupIDs: false}
+        ]
+      })
+    ]))
+    .pipe(dest('./app/assets/images'))
+}
+
 const server = () => {
   browserSync.init({
     server: {
@@ -42,7 +59,8 @@ const server = () => {
 
   watch('./app/src/scss/**/*.scss', style);
   watch('./app/src/js/**/*.js', javascript);
+  watch('./app/src/img/*', images);
   watch('./app/*html').on('change', browserSync.reload);
 }
 
-exports.default = series(style, javascript, server);
+exports.default = series(style, javascript, images, server);
