@@ -1,13 +1,10 @@
-// https://gulpjs.com/
-// https://www.npmjs.com/package/gulp-sass
-// https://www.npmjs.com/package/gulp-autoprefixer
-// https://www.browsersync.io/docs/gulp
-// https://github.com/fmarcia/UglifyCSS
-
 const { src, dest, parallel, watch } = require('gulp'),
       sass = require('gulp-sass'),
+      rename = require('gulp-rename'),
+      uglify = require('gulp-uglify'),
+      concat = require('gulp-concat'),
       uglifycss = require('gulp-uglifycss'),
-      autoprefixer = require('gulp-autoprefixer')
+      autoprefixer = require('gulp-autoprefixer'),
       browserSync = require('browser-sync').create();
 
 const style = () => {
@@ -24,6 +21,18 @@ const style = () => {
     .pipe(browserSync.stream())
 }
 
+const javascript = () => {
+  return src([
+    'node_modules/jquery/dist/jquery.min.js',
+    './app/src/js/**/*.js'
+  ])
+  .pipe(concat('all.js'))
+  .pipe(uglify())
+  .pipe(rename({suffix: '.min'}))
+  .pipe(dest('./app/assets/javascripts'))
+  .pipe(browserSync.stream())
+}
+
 const server = () => {
   browserSync.init({
     server: {
@@ -32,8 +41,10 @@ const server = () => {
   });
 
   watch('./app/src/scss/**/*.scss', style);
+  watch('./app/src/js/**/*.js', javascript);
   watch('./app/*html').on('change', browserSync.reload);
 }
 
 exports.default = style;
-exports.default = parallel(server, style);
+exports.default = javascript;
+exports.default = parallel(server, style, javascript);
